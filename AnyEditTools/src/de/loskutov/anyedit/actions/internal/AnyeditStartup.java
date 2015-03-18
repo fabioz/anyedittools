@@ -27,15 +27,15 @@ public class AnyeditStartup implements IStartup {
     @Override
     public void earlyStartup() {
         // hooks into the global toolbar/menu
+        String errorMsg = "Eclipse version too old to work with this custom version of AnyEdit.";
         try {
             if(EclipseUtils.getWorkbenchVersion().compareTo(new Version(3,7,0)) >= 0) {
                 new StartupHelper2().init();
             } else {
-                new StartupHelper().init();
+                AnyEditToolsPlugin.logError(errorMsg, new RuntimeException(errorMsg));
             }
         } catch (NoSuchMethodError e){
-            // it's old Eclipse...
-            new StartupHelper().init();
+            AnyEditToolsPlugin.logError(errorMsg, e);
         }
         AnyEditToolsPlugin.setSaveHookInitialized(true);
     }
