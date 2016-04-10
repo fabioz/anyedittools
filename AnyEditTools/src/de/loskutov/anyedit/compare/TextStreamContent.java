@@ -86,7 +86,7 @@ IEditableContentExtension {
         this.selectedText = selectedText;
         this.position = position;
         this.partListener = new PartListener2Impl();
-        if(this.editor.getEditorPart() != null) {
+        if(this.editor.getPart() != null) {
             PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().addPartListener(
                     partListener);
             IDocument document = this.editor.getDocument();
@@ -323,8 +323,15 @@ IEditableContentExtension {
         if(editor.isDisposed()){
             return;
         }
-        IEditorInput input = editor.getInput();
         IDocumentProvider documentProvider = editor.getDocumentProvider();
+        if(documentProvider == null){
+            return;
+        }
+        IEditorInput input = editor.getInput();
+        if(input == null){
+            return;
+        }
+
         IAnnotationModel extension = documentProvider.getAnnotationModel(input);
         if (!(extension instanceof IAnnotationModelExtension)) {
             return;
@@ -344,8 +351,14 @@ IEditableContentExtension {
         if(editor.isDisposed()){
             return;
         }
-        IEditorInput input = editor.getInput();
         IDocumentProvider documentProvider = editor.getDocumentProvider();
+        if(documentProvider == null){
+            return;
+        }
+        IEditorInput input = editor.getInput();
+        if(input == null){
+            return;
+        }
         IAnnotationModel extension = documentProvider.getAnnotationModel(input);
         if (!(extension instanceof IAnnotationModelExtension)) {
             return;
@@ -370,7 +383,7 @@ IEditableContentExtension {
 
         @Override
         public void partClosed(IWorkbenchPartReference partRef) {
-            if (editor.getEditorPart() == partRef.getPart(false)) {
+            if (editor.getPart() == partRef.getPart(false)) {
 
                 positionUpdater = null;
                 dispose();

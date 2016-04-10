@@ -9,7 +9,6 @@
 package de.loskutov.anyedit.actions.compare;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +29,8 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.progress.UIJob;
 
@@ -196,16 +195,15 @@ public class CompareWithEditorAction extends CompareWithAction {
                 }
 
                 // if we are called from navigator (not from editor menu)
-                if(myEditor == null || myEditor.getEditorPart() == null){
+                if(myEditor == null || myEditor.getPart() == null){
                     // if navigator context menu has no valid selection
                     if(selectedContent == null) {
                         continue;
                     }
                     AbstractEditor abstractEditor = new AbstractEditor(reference.getEditor(initEditor));
-                    URI uri = abstractEditor.getURI();
 
                     File file = selectedContent.getFile();
-                    File anotherFile = EclipseUtils.getLocalFile(uri);
+                    File anotherFile = abstractEditor.getFile();
                     if(file != null && file.equals(anotherFile)){
                         // same file as selection
                         continue;
@@ -216,7 +214,7 @@ public class CompareWithEditorAction extends CompareWithAction {
 
                 // here we was called from the editor menu
                 AbstractEditor abstractEditor = new AbstractEditor(reference.getEditor(initEditor));
-                if (abstractEditor.getEditorPart() == null || sameEditor(abstractEditor)) {
+                if (abstractEditor.getPart() == null || sameEditor(abstractEditor)) {
                     continue;
                 }
                 refs.add(editorReferences[i]);
@@ -254,16 +252,16 @@ public class CompareWithEditorAction extends CompareWithAction {
             if(myEditor == null){
                 return false;
             }
-            URI myUri = myEditor.getURI();
-            URI anotherURI = abstractEditor.getURI();
-            return myUri != null && myUri.equals(anotherURI);
+            File myFile = myEditor.getFile();
+            File another = abstractEditor.getFile();
+            return myFile != null && myFile.equals(another);
         }
 
         private boolean similarEditor(IEditorReference reference) {
             if(myEditor == null) {
                 return false;
             }
-            IEditorPart part = myEditor.getEditorPart();
+            IWorkbenchPart part = myEditor.getPart();
             if(part == null) {
                 return false;
             }

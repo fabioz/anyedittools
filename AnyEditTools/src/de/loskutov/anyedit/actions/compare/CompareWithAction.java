@@ -17,7 +17,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -35,7 +34,7 @@ import de.loskutov.anyedit.ui.editor.AbstractEditor;
  * @author Andrey
  *
  */
-public abstract class CompareWithAction extends AbstractHandler implements IObjectActionDelegate /*, IWorkbenchWindowActionDelegate*/ {
+public abstract class CompareWithAction extends AbstractHandler implements IObjectActionDelegate {
 
     protected ContentWrapper selectedContent;
     protected AbstractEditor editor;
@@ -65,12 +64,7 @@ public abstract class CompareWithAction extends AbstractHandler implements IObje
 
     @Override
     public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-        if (targetPart instanceof IEditorPart) {
-            editor = new AbstractEditor((IEditorPart) targetPart);
-        } else {
-            editor = new AbstractEditor(null);
-        }
-
+        editor = new AbstractEditor(targetPart);
     }
 
     @Override
@@ -89,6 +83,9 @@ public abstract class CompareWithAction extends AbstractHandler implements IObje
         } catch (CoreException e) {
             left.dispose();
             AnyEditToolsPlugin.logError("Can't perform compare", e);
+        } finally {
+            selectedContent = null;
+            editor = null;
         }
     }
 
@@ -144,7 +141,7 @@ public abstract class CompareWithAction extends AbstractHandler implements IObje
     public void selectionChanged(IAction action, ISelection selection) {
         if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
             // happens only on first initialization in fresh started eclipse, in editor
-            if(!editor.isDisposed()){
+            if(!editor.isDisposed() || selectedContent == null){
                 selectedContent = ContentWrapper.create(editor);
             }
             action.setEnabled(selectedContent != null);
